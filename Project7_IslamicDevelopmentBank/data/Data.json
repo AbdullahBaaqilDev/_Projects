@@ -1,0 +1,50 @@
+{
+    "ids_list": [
+        "8857",
+        "2703"
+    ],
+    "names_list": [
+        "Abdullah Mohammed Baaqeil",
+        "Fayzah Ahmed AL-Shatry"
+    ],
+    "births_list": [
+        "2008/12/27",
+        "1988/6/26"
+    ],
+    "money_list": [
+        "1768350",
+        "1768350"
+    ],
+    "nationalitys_list": [
+        "Yamen",
+        "Yamen"
+    ],
+    "passwords_list": [
+        "A123456789a",
+        "1234567"
+    ],
+    "Abdullah Mohammed Baaqeil#8857": {
+        "id": "8857",
+        "name": "Abdullah Mohammed Baaqeil",
+        "birth": "2008/12/27",
+        "money": "1768350",
+        "nationality":"Yamen",
+        "password": "A123456789a",
+        "requests": [],
+        "settings": {
+            "theme": "light"
+        }
+    },
+    "Fayzah Ahmed AL-Shatry#2703": {
+        "id": "2703",
+        "name": "Fayzah Ahmed AL-Shatry",
+        "birth": "1988/6/26",
+        "money": "1768350",
+        "nationality":"Yamen",
+        "password": "1234567",
+        "requests": [],
+        "settings": {
+            "theme": "light"
+        }
+    }
+}
