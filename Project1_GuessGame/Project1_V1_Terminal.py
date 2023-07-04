@@ -1,5 +1,3 @@
-#Mad with abodi2098
-#-----------------------|
 import random
 
 def want_play():
