@@ -1,8 +1,7 @@
 import pygame
 
 path = __file__.split("\\")
-path.pop(-1)
-path.pop(-1)
+del(path[-2:])
 path.append("assets")
 path_as_str = ""
 for f in path:
