@@ -44,6 +44,12 @@ class Move():
         return target
     
     def get_castle_pieces(self):
+        white_king = None
+        white_rookK = None
+        white_rookQ = None
+        black_king = None
+        black_rookK = None
+        black_rookQ = None
         for piece_ in self.pieces.sprites():
             if piece_.id == 1:
                 white_king = piece_
@@ -68,23 +74,25 @@ class Move():
         white_ck = True
         white_cq = True
         
-        if white["king"].moved:
+        if white["king"] != None and white["king"].moved or white["king"] != None and white["king"].square.pos != Vec(4,7):
             white_ck = False
             white_cq = False
-        if white["rookK"].moved:
-            white_ck = False
-        if white["rookQ"].moved:
-            white_cq = False
+        else:
+            if white["rookK"] != None and white["rookK"].moved:
+                white_ck = False
+            if white["rookQ"] != None and white["rookQ"].moved:
+                white_cq = False
 
         black_ck = True
         black_cq = True
-        if black["king"].moved:
+        if black["king"] != None and black["king"].moved or black["king"] != None and black["king"].square.pos != Vec(4,0):
             black_ck = False
             black_cq = False
-        if black["rookK"].moved:
-            black_ck = False
-        if black["rookQ"].moved:
-            black_cq = False
+        else:
+            if black["rookK"] != None and black["rookK"].moved:
+                black_ck = False
+            if black["rookQ"] != None and black["rookQ"].moved:
+                black_cq = False
 
         if not return_bool:
             if white_ck: castle["white_ck"] = "K"
@@ -125,12 +133,12 @@ class Move():
             if piece.id == 1:
                 if castle["white_ck"] and self.get_target_square(Vec(6,7)).piece == None and self.get_target_square(Vec(5,7)).piece == None:
                     directions.append(Vec(2,0))
-                if castle["white_cq"] and self.get_target_square(Vec(4,7)).piece == None and self.get_target_square(Vec(3,7)).piece == None and self.get_target_square(Vec(2,7)).piece == None and self.get_target_square(Vec(1,7)).piece == None:
+                if castle["white_cq"] and self.get_target_square(Vec(3,7)).piece == None and self.get_target_square(Vec(2,7)).piece == None and self.get_target_square(Vec(1,7)).piece == None:
                     directions.append(Vec(-2,0))
             elif piece.id == -1:
                 if castle["black_ck"] and self.get_target_square(Vec(6,0)).piece == None and self.get_target_square(Vec(5,0)).piece == None:
                     directions.append(Vec(2,0))
-                if castle["black_cq"] and self.get_target_square(Vec(4,0)).piece == None and self.get_target_square(Vec(3,0)).piece == None and self.get_target_square(Vec(2,0)).piece == None and self.get_target_square(Vec(1,0)).piece == None:
+                if castle["black_cq"] and self.get_target_square(Vec(3,0)).piece == None and self.get_target_square(Vec(2,0)).piece == None and self.get_target_square(Vec(1,0)).piece == None:
                     directions.append(Vec(-2,0))
             for direction in directions:
                 for index in direction_range:
@@ -138,8 +146,11 @@ class Move():
                     if square != None:
                         if square.piece == None:
                             moves[square] = "normal"
-                            if piece.id == piece.value and direction in [Vec(2,0),Vec(-2,0)]:
-                                moves[square] = "castle"
+                            if piece.id == piece.value:
+                                if direction == Vec(2,0):
+                                    moves[square] = "castleK"
+                                elif direction == Vec(-2,0):
+                                    moves[square] = "castleQ"
                         else:
                             if square.piece.value != piece.value:
                                 moves[square] = "capture"
@@ -180,6 +191,7 @@ class Move():
             if move_type == "capture":
                 square.piece.kill()
 
+
             for square_ in self.squares:
                 square_.highlighted = 0
             piece.square.highlighted = 2
@@ -192,6 +204,23 @@ class Move():
             piece.square = square
             self.turn *= -1
             self.update_attributes(self.squares,self.pieces,piece,square)
+
+            if move_type == "castleK":
+                for piece_ in self.pieces:
+                    if piece_.value == piece.value and abs(piece_.id) == 5 and piece_.square.pos.x == 7:
+                        piece_.square.piece = None
+                        piece_.square = self.get_target_square(piece.square.pos + Vec(-1,0))
+                        piece_.square.piece = piece_
+                        piece_.rect.topleft = piece_.square.rect.topleft
+                move_type = "castle"
+            elif move_type == "castleQ":
+                for piece_ in self.pieces:
+                    if piece_.value == piece.value and abs(piece_.id) == 5 and piece_.square.pos.x == 0:
+                        piece_.square.piece = None
+                        piece_.square = self.get_target_square(piece.square.pos + Vec(1,0))
+                        piece_.square.piece = piece_
+                        piece_.rect.topleft = piece_.square.rect.topleft
+                move_type = "castle"
 
             if self.is_check(piece):
                 move_type = "check"

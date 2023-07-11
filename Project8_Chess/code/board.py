@@ -16,7 +16,7 @@ class Board():
 
         self.selected_piece = None
         self.selected_square = None
-        self.castle = [False] * 4
+        self.castle = {}
         self.move_ = Move()
 
         # make the squares
@@ -79,6 +79,10 @@ class Board():
         rank = 0
         file = 0
         part = 0
+        self.castle["white_ck"] = False
+        self.castle["white_cq"] = False
+        self.castle["black_ck"] = False
+        self.castle["black_cq"] = False
 
         piece_id_from_symbol_dect = {
             "k":1,
@@ -118,7 +122,14 @@ class Board():
                 else:
                     self.move_.turn = -1
             elif part == 2:
-                self.castle.append(letter)
+                if letter == "K":
+                    self.castle["white_ck"] = True
+                if letter == "Q":
+                    self.castle["white_cq"] = True
+                if letter == "k":
+                    self.castle["black_ck"] = True
+                if letter == "q":
+                    self.castle["black_cq"] = True
 
     def reset_board(self):
         for piece in self.pieces_group.sprites():
