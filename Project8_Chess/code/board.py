@@ -1,8 +1,8 @@
 import pygame
 import sys
-from move import *
-from square import *
-from piece import *
+from move import Move
+from square import Square
+from piece import Piece
 from settings import *
 from debug import debug
 
@@ -16,10 +16,8 @@ class Board():
 
         self.selected_piece = None
         self.selected_square = None
-        self.turn = 1
-        self.white_castle = [False,False]
-        self.black_castle = [False,False]
-        self.move_ = move.Move()
+        self.castle = [False] * 4
+        self.move_ = Move()
 
         # make the squares
         for rank in range(8):
@@ -66,12 +64,14 @@ class Board():
                 file = 0
                 rank += 1
 
-        if self.turn == 1:
+        if self.move_.turn == 1:
             tomove = "w"
         else:
             tomove = "b"
         fen += f" {tomove}"
-        fen += f" {self.white_castle[0]}{self.white_castle[1]}{self.black_castle[0]}{self.black_castle[1]}"
+
+        self.castle = self.move_.get_castle(False)
+        fen += " {}{}{}{}".format(self.castle["white_ck"],self.castle["white_cq"],self.castle["black_ck"],self.castle["black_cq"])
 
         return fen
 
@@ -114,33 +114,28 @@ class Board():
                     file += 1
             elif part == 1:
                 if letter == "w":
-                    self.turn = 1
+                    self.move_.turn = 1
                 else:
-                    self.turn = -1
+                    self.move_.turn = -1
             elif part == 2:
-                if letter == "K":
-                    self.white_castle[0] = "K"
-                elif letter == "Q":
-                    self.white_castle[1] = "Q"
-                elif letter == "k":
-                    self.black_castle[0] = "k"
-                elif letter == "q":
-                    self.black_castle[1] = "q"
+                self.castle.append(letter)
 
     def reset_board(self):
         for piece in self.pieces_group.sprites():
             piece.kill()
+        for square in self.squares_group.sprites():
+            square.piece = None
         self.load_fen(START_FEN)
 
     def update_selected(self):
         mouse = pygame.mouse.get_pressed()
         if not mouse[0] and self.selected_piece != None:
             if self.selected_square != None:
-                self.move_.__attributes__(self.squares_group,self.pieces_group,self.selected_piece,self.selected_square,self.turn)
-                turn = self.move_.set_move()
-                self.turn = turn
+                self.move_.update_attributes(self.squares_group,self.pieces_group,self.selected_piece,self.selected_square)
+                self.move_.set_move()
                 self.selected_piece = None
                 self.selected_square = None
+
         for piece in self.pieces_group.sprites():
             if piece.is_selected(self.selected_piece) != None:
                 select = piece.is_selected(self.selected_piece)
@@ -161,7 +156,7 @@ class Board():
     def highlight_squares(self):
         mouse = pygame.mouse.get_pressed()
         if self.selected_piece != None:
-            self.move_.__attributes__(self.squares_group,self.pieces_group,self.selected_piece,self.selected_square,self.turn)
+            self.move_.update_attributes(self.squares_group,self.pieces_group,self.selected_piece,self.selected_square)
             moves = self.move_.get_piece_moves()
             for square in self.squares_group.sprites():
                 square.highlighted = 0
@@ -180,7 +175,7 @@ class Board():
             sys.exit()
         if keys[pygame.K_r]:
             self.reset_board()
-    
+
     def draw(self):
         for sprite in self.visible_sprites.sprites():
             self.display_surface.blit(sprite.image,sprite.rect)
@@ -191,7 +186,10 @@ class Board():
         self.highlight_squares()
         self.update_selected()
         self.visible_sprites.update()
-        debug(self.turn,)
+        self.move_.update_attributes(self.squares_group,self.pieces_group,self.selected_piece,self.selected_square)
+        debug(self.move_.turn)
         debug(self.get_fen(),25)
         if self.selected_piece != None:
             debug(self.selected_piece.moved,50)
+        if self.selected_square != None:
+            debug(self.selected_square.piece,75)

@@ -1,5 +1,4 @@
 import pygame
-import move
 from settings import *
 
 class Square(pygame.sprite.Sprite):

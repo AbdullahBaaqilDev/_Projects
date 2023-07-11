@@ -10,15 +10,16 @@ class Piece(pygame.sprite.Sprite):
         self.id = id * value
         self.value = value
         self.square = square
-        self.moved = False
         self.is_long_range = is_long_range
+        self.moved = False
+        self.en_passant = False
 
         sprite_sheet = pygame.image.load(f"{ASSETS_FOLDER}\\images\\pieces.png").convert_alpha()
         piece_width = int(sprite_sheet.get_width() / 6)
         piece_height = int(sprite_sheet.get_height() / 2)
         img = SpriteSheet(sprite_sheet,
                           (abs(self.id)-1)*piece_width,
-                          0 if self.value > 0 else 1 * piece_height,
+                          0 if self.value > 0 else piece_height,
                           piece_width,
                           piece_height)
         self.image = pygame.transform.scale(img.get(),(SQUARE_SIZE,SQUARE_SIZE))

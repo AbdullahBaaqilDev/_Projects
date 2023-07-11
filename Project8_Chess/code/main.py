@@ -14,7 +14,7 @@ class Chess():
 
         self.board = Board()
         self.board.load_fen(START_FEN)
-        
+
     def mainloop(self):
         while True:
             for event in pygame.event.get():

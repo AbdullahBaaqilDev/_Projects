@@ -11,9 +11,8 @@ START_CLICKS = 0
 PROJECT_FOLDER = "D:\\Abdullah\\PROGRAMS\\Coding\\_PYTHON\\_Projects\\Project4_MonyGame"
 TEXT_COLOR = (238,238,238)
 TEXT_COLOR_SELECTED = (17,17,17)
-BAR_COLOR = (238,238,238)
-BAR_COLOR_SELECTED = (17,17,17)
-UPGRADE_BG_COLOR_SELECTED = (238,238,238)
+UI_BG_COLOR = (17,17,17)
+UI_BG_COLOR_SELECTED = (238,238,238)
 pygame.init()
 pygame.display.set_caption("Money Game")
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -37,19 +36,19 @@ def reflect_images(frames):
     return new_frames
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self,image,pos,command,press_cooldown):
+    def __init__(self,text,pos,size,command,press_cooldown,index,font:pygame.font.Font):
         self.display_surface = pygame.display.get_surface()
-        self.image = image
-        self.rect = self.image.get_rect(center = pos)
+        self.text = text
+        self.image = pygame.Surface(size)
+        self.rect = self.image.get_rect(topleft = pos)
         self.command = command
-        self.alpha = 200
+        self.index = index
+        self.font = font
+        self.hovered = False
 
         self.press_cooldown = press_cooldown
         self.press_time = None
         self.can_press = True
-    
-    def highlight(self):
-        self.image.set_alpha(self.alpha)
 
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
@@ -64,18 +63,25 @@ class Button(pygame.sprite.Sprite):
         if self.rect.collidepoint(mouse_pos):
             if mouse_pressed[0] and self.can_press:
                 self.command()
+                self.hovered = False
             else:
-                self.alpha = 255
-        else:
-            self.alpha = 200
+                self.hovered = True
+
+    def draw_name(self):
+        color = TEXT_COLOR if not self.hovered else TEXT_COLOR_SELECTED
+
+        text_surf = self.font.render(self.text,True,color,)
+        text_rect = text_surf.get_rect(midtop = self.rect.midtop + pygame.math.Vector2(0,20))
+        self.display_surface.blit(text_surf,text_rect)
 
     def draw(self):
+        self.image.fill(UI_BG_COLOR if not self.hovered else UI_BG_COLOR_SELECTED)
         self.display_surface.blit(self.image,self.rect)
+        self.draw_name()
 
     def update(self):
         self.cooldowns()
         self.collision()
-        self.highlight()
         self.draw()
 
 class ParticlesAnimationPlayer():
@@ -117,99 +123,89 @@ class Particle(pygame.sprite.Sprite):
         self.animate()
         self.draw()
 
-class Upgrads():
-    def __init__(self,user,font):
+class Upgrades():
+    def __init__(self,player):
         self.display_surface = pygame.display.get_surface()
-        self.user = user
-        self.upgrades_number = 4# 1.money per click 2.click per click 3.BOOST 4.auto clicker 5.
-        self.width = self.display_surface.get_width() * 0.2
-        self.height = self.display_surface.get_height() * 0.8
-        self.font = font
-
-    def create_items(self):
-        self.item_list = []
-
-        for item, index in enumerate(range(self.upgrades_number)):
-            # horizontal position
-            full_width = self.display_surface.get_width()
-            increment = full_width // self.upgrades_number
-            left = (item * increment) + (increment - self.width) // 2
-            
-            # vertical position
-            top = self.display_surface.get_height() * 0.1
-
-            # create the object 
-            item = Item(pygame.Rect(left,top,self.width,self.height),index,self.font)
-            self.item_list.append(item)
+        self.player = player
+        self.upgrades_commands = [self.upgrade1_command,self.upgrade2_command,self.upgrade3_command,self.upgrade4_command,]
     
     def upgrade1_command(self):
         pass
     
     def upgrade2_command(self):
         pass
-    
+
     def upgrade3_command(self):
         pass
 
     def upgrade4_command(self):
         pass
 
-class Item():
-    def __init__(self,rect,index,font):
-        self.display_surface = pygame.display.get_surface()
-        self.rect = rect
-        self.index = index
-        self.font  = font
-
-    def display_titles(self,surface,name,cost,selected):
-        color = TEXT_COLOR_SELECTED if selected else TEXT_COLOR
-
-        # title
-        name_surf = self.font.render(name,False,color)
-        name_rect = name_surf.get_rect(midtop = self.rect.midtop + pygame.math.Vector2(0,20))
-
-        # cost 
-        cost_surf = self.font.render(f'{int(cost)}',False,color)
-        cost_rect = cost_surf.get_rect(midbottom = self.rect.midbottom - pygame.math.Vector2(0,20))
-
-        # draw 
-        surface.blit(name_surf,name_rect)
-        surface.blit(cost_surf,cost_rect)
-    def trigger(self,player):
-        upgrade_name = list(player.stats.keys())[self.index]
-
-        if player.exp >= player.upgrade_cost[upgrade_name] and player.stats[upgrade_name] < player.max_stats[upgrade_name]:
-            player.exp -= player.upgrade_cost[upgrade_name]
-            player.stats[upgrade_name] *= 1.2
-            player.upgrade_cost[upgrade_name] *= 1.4
-
-        if player.stats[upgrade_name] > player.max_stats[upgrade_name]:
-            player.stats[upgrade_name] = player.max_stats[upgrade_name]
-
 class UI():
-    def __init__(self):
+    def __init__(self,player):
         self.display_surface = pygame.display.get_surface()
         self.buttons_group = pygame.sprite.Group()
         self.font = pygame.font.Font(f"{PROJECT_FOLDER}\\assets\\font\\joystix.ttf")
+        self.player = player
+        # upgrades
+        self.upgrades = Upgrades(self.player)
+        self.upgrades_names = ["Money +","Clicks +","BOOST","Auto Clicker"]
+        self.upgrade_button_width = self.display_surface.get_width() * 0.4
+        self.upgrade_button_height = self.display_surface.get_height() * 0.4
+        self.create_upgrades_buttons()
+
+    def create_upgrades_buttons(self):
+        self.buttons_list = []
+
+        for index,button in enumerate(self.upgrades_names):
+            full_width = self.display_surface.get_width()
+            increment = full_width // len(self.upgrades_names)
+            left = (index * increment) + (increment - self.upgrade_button_width) // 2
+            
+            top = self.display_surface.get_height() * 0.1
+
+            # create the object
+            button = Button(button,(left,top),(self.upgrade_button_width,self.upgrade_button_height),self.upgrades.upgrades_commands[index],0,index,self.font)
+            self.buttons_list.append(button)
     
-    def show_upgrads(self):
+    def diplay_money(self):
+        pass
+
+    def diplay_clicks(self):
+        pass
+
+    def display_upgrads(self):
+        pass
+
+    def display_buttons(self):
         pass
 
     def display(self):
         pass
 
-class User():
-    def __init__(self,start_money,start_clicks):
-        self.money = start_money
-        self.clicks = start_clicks
+class Player():
+    def __init__(self,money,clicks):
+        self.money = money
+        self.clicks = clicks
 
+class Main():
+    def __init__(self):
+        self.player = Player(9999999,999)
+        self.ui = UI(self.player)
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-    screen.fill(SCREEN_COLOR)
-    
-    pygame.display.update()
-    clock.tick(FPS)
+    def mainloop(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+            screen.fill(SCREEN_COLOR)
+
+            self.ui.display()
+            
+            pygame.display.update()
+            clock.tick(FPS)
+
+if __name__ == "__main__":
+    game = Main()
+    game.mainloop()
