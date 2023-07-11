@@ -1,6 +1,13 @@
 import pygame
 
-ASSETS_FOLDER = "D:\\Abdullah\\PROGRAMS\\Coding\\_PYTHON\\_Projects\\Project8_Chess\\assets"
+path = __file__.split("\\")
+path.pop(-1)
+path.pop(-1)
+path.append("assets")
+path_as_str = ""
+for f in path:
+    path_as_str += f+"\\"
+ASSETS_FOLDER = path_as_str
 WIDTH = 1000
 HEIGHT = 600
 FPS = 120
