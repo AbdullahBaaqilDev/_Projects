@@ -23,19 +23,21 @@ class Board():
         for rank in range(8):
             for file in range(8):
                 # square color
-                is_dark = True
-                if (rank+file) % 2 == 0:
-                    is_dark = False
-                square_name = list("abcdefgh")[file]+list("87654321")[rank]
-                square = Square(file*SQUARE_SIZE,rank*SQUARE_SIZE,square_name,(file,rank),is_dark)
+                is_dark = not (rank+file) % 2 == 0
+                square_name = "abcdefgh"[file] + "87654321"[rank]
+                square = Square(x = file*SQUARE_SIZE,
+                                y = rank*SQUARE_SIZE,
+                                name = square_name,
+                                pos = (file,rank),
+                                is_dark = is_dark)
                 self.visible_sprites.add(square)
                 self.squares_group.add(square)
 
     def get_fen(self):
+        fen = ""
         rank = 0
         file = 0
-        fen = ""
-        piece_symbol_from_id_dect = {
+        symbol_from_id = {
             1:"K",
             2:"Q",
             3:"B",
@@ -52,26 +54,20 @@ class Board():
         for square in self.squares_group.sprites():
             if square.piece == None:
                 file += 1
-            elif square.piece != None:
+            elif square.piece:
                 if file > 0:
                     fen += str(file)
                 file += 1
 
-                fen += str(piece_symbol_from_id_dect[square.piece.id])
+                fen += str(symbol_from_id[square.piece.id])
                 file = 0
             if file-1 in list(range(7,63,8)):
                 fen += "/"
                 file = 0
                 rank += 1
 
-        if self.move_.turn == 1:
-            tomove = "w"
-        else:
-            tomove = "b"
+        tomove = "w" if self.move_.turn == 1 else "b"
         fen += f" {tomove}"
-
-        self.castle = self.move_.get_castle(False)
-        fen += " {}{}{}{}".format(self.castle["white_ck"],self.castle["white_cq"],self.castle["black_ck"],self.castle["black_cq"])
 
         return fen
 
@@ -79,12 +75,8 @@ class Board():
         rank = 0
         file = 0
         part = 0
-        self.castle["white_ck"] = False
-        self.castle["white_cq"] = False
-        self.castle["black_ck"] = False
-        self.castle["black_cq"] = False
 
-        piece_id_from_symbol_dect = {
+        id_from_symbol = {
             "k":1,
             "q":2,
             "b":3,
@@ -106,11 +98,11 @@ class Board():
                     square_pos = pygame.math.Vector2(file,rank)
                     for square in self.squares_group:
                         if square.pos == square_pos:
-                            piece = Piece(piece_id_from_symbol_dect[letter.lower()],
-                                          1 if letter.isupper() else -1,
-                                          letter.lower() in ["q","b","r"],
-                                          square,
-                                          (file*SQUARE_SIZE,rank*SQUARE_SIZE))
+                            piece = Piece(id = id_from_symbol[letter.lower()],
+                                          value = 1 if letter.isupper() else -1,
+                                          is_long_range = letter.lower() in ["q","b","r"],
+                                          square = square,
+                                          pos = (file*SQUARE_SIZE,rank*SQUARE_SIZE))
                             self.visible_sprites.add(piece)
                             self.pieces_group.add(piece)
                             square.piece = piece
@@ -121,15 +113,6 @@ class Board():
                     self.move_.turn = 1
                 else:
                     self.move_.turn = -1
-            elif part == 2:
-                if letter == "K":
-                    self.castle["white_ck"] = True
-                if letter == "Q":
-                    self.castle["white_cq"] = True
-                if letter == "k":
-                    self.castle["black_ck"] = True
-                if letter == "q":
-                    self.castle["black_cq"] = True
 
     def reset_board(self):
         for piece in self.pieces_group.sprites():
@@ -140,15 +123,15 @@ class Board():
 
     def update_selected(self):
         mouse = pygame.mouse.get_pressed()
-        if not mouse[0] and self.selected_piece != None:
-            if self.selected_square != None:
+        if not mouse[0] and self.selected_piece:
+            if self.selected_square:
                 self.move_.update_attributes(self.squares_group,self.pieces_group,self.selected_piece,self.selected_square)
                 self.move_.set_move()
                 self.selected_piece = None
                 self.selected_square = None
 
         for piece in self.pieces_group.sprites():
-            if piece.is_selected(self.selected_piece) != None:
+            if piece.is_selected(self.selected_piece):
                 select = piece.is_selected(self.selected_piece)
                 break
             else:
@@ -157,7 +140,7 @@ class Board():
 
         temp_square = None
         for square in self.squares_group.sprites():
-            if square.is_selected() != None:
+            if square.is_selected():
                 self.selected_square = square.is_selected()
                 temp_square = self.selected_square
                 break
@@ -166,9 +149,9 @@ class Board():
 
     def highlight_squares(self):
         mouse = pygame.mouse.get_pressed()
-        if self.selected_piece != None:
+        if self.selected_piece:
             self.move_.update_attributes(self.squares_group,self.pieces_group,self.selected_piece,self.selected_square)
-            moves = self.move_.get_piece_moves()
+            moves = self.move_.get_piece_moves(self.selected_piece.square.pos,self.selected_piece,self.move_.turn)
             for square in self.squares_group.sprites():
                 square.highlighted = 0
                 if square in moves:
@@ -200,7 +183,8 @@ class Board():
         self.move_.update_attributes(self.squares_group,self.pieces_group,self.selected_piece,self.selected_square)
         debug(self.move_.turn)
         debug(self.get_fen(),25)
-        if self.selected_piece != None:
+        if self.selected_piece:
             debug(self.selected_piece.moved,50)
-        if self.selected_square != None:
+        if self.selected_square:
             debug(self.selected_square.piece,75)
+            debug(self.selected_square.pos,100)

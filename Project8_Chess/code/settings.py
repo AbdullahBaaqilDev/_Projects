@@ -1,4 +1,5 @@
 import pygame
+from pygame import Vector2 as Vec
 
 path = __file__.split("\\")
 del(path[-2:])
@@ -14,6 +15,16 @@ WINDOW_ICON = pygame.image.load(f"{ASSETS_FOLDER}\\images\\chess.ico")
 
 SQUARE_SIZE = HEIGHT / 8
 START_FEN = "rnbqkbnr/pppppppp/////PPPPPPPP/RNBQKBNR w KQkq"
+
+PIECES_DIRETIONS = {
+    1:[Vec(1,0),Vec(-1,0),Vec(0,-1),Vec(0,1),Vec(1,-1),Vec(-1,-1),Vec(1,1),Vec(-1,1),],
+    2:[Vec(1,0),Vec(-1,0),Vec(0,-1),Vec(0,1),Vec(1,-1),Vec(-1,-1),Vec(1,1),Vec(-1,1),],
+    3:[Vec(1,-1),Vec(-1,-1),Vec(1,1),Vec(-1,1),],
+    4:[Vec(-2,1),Vec(-2,-1),Vec(2,1),Vec(2,-1),Vec(1,2),Vec(-1,2),Vec(1,-2),Vec(-1,-2),],
+    5:[Vec(1,0),Vec(-1,0),Vec(0,-1),Vec(0,1),],
+    6:[Vec(0,-1),Vec(1,-1),Vec(-1,-1)],
+    -6:[Vec(0,1),Vec(-1,1),Vec(1,1)],
+}
 
 # squares colors
 DARK = (181,136,99)
