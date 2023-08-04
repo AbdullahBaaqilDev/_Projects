@@ -24,7 +24,7 @@ SNAKE_START_BODY = [Vec(1,12),Vec(2,12),Vec(3,12)]
 SNAKE_SPEED = 150
 
 # fruits
-FRUITS_NUMBER = 7
+FRUITS_NUMBER = 3
 FRUIT_TYPE = "tomato"
 FRUITS_DICT = {
     "apple": 0,

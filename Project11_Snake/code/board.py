@@ -10,8 +10,8 @@ class Board():
         self.display_surface: pygame.Surface = pygame.display.get_surface()
         self.eat_sound: pygame.mixer.Sound = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\eat.wav")
         self.death_sound: pygame.mixer.Sound = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\death.wav")
-        self.font_20px = pygame.font.SysFont("Arial",20)
-        self.font_30px = pygame.font.SysFont("Arial",30,True)
+        self.font_20px = pygame.font.Font(f"{PROJECT_FOLDER}\\assets\\fonts\\Race Sport.ttf",20)
+        self.font_30px = pygame.font.Font(f"{PROJECT_FOLDER}\\assets\\fonts\\Race Sport.ttf",25)
 
         self.size: Vec = BOARD_SIZE
         self.square_size: int = SQUARE_SIZE
@@ -93,7 +93,7 @@ class Board():
             self.draw()
             self.snake.update()
             self.fruits.update()
-            self.ui.display_text(self.font_30px,str(self.highest_score),True,UI_FONT_COLOR,True)
-            self.ui.display_text(self.font_30px,str(self.score),True,UI_FONT_COLOR)
+            self.ui.display_text(self.font_30px,f"Highest Score: {self.highest_score}",True,UI_FONT_COLOR,)
+            self.ui.display_text(self.font_30px,f"Score: {self.score}",True,UI_FONT_COLOR,(0,40))
         else:
             self.display_menu()
