@@ -7,31 +7,31 @@ from settings import *
 
 class Board():
     def __init__(self):
-        self.display_surface: pygame.Surface = pygame.display.get_surface()
-        self.eat_sound: pygame.mixer.Sound = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\eat.wav")
-        self.death_sound: pygame.mixer.Sound = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\death.wav")
+        self.display_surface = pygame.display.get_surface()
+        self.eat_sound = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\eat.wav")
+        self.death_sound = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\death.wav")
         self.font_20px = pygame.font.Font(f"{PROJECT_FOLDER}\\assets\\fonts\\Race Sport.ttf",20)
         self.font_30px = pygame.font.Font(f"{PROJECT_FOLDER}\\assets\\fonts\\Race Sport.ttf",25)
 
-        self.size: Vec = BOARD_SIZE
-        self.square_size: int = SQUARE_SIZE
-        self.squares: list = []
+        self.size = BOARD_SIZE
+        self.square_size = SQUARE_SIZE
+        self.squares = []
         self.create_squares()
-        self.fruits: pygame.sprite.Group = pygame.sprite.Group()
-        self.fruit_type: str = FRUIT_TYPE
+        self.fruits = pygame.sprite.Group()
+        self.fruit_type = FRUIT_TYPE
         self.create_fruits()
-        self.snake: Snake = Snake()
-        self.score: int = 0
+        self.snake = Snake()
+        self.score = 0
         self.get_highest_score()
-        self.menu: bool = False
+        self.menu = False
         self.ui = UI()
         
     def get_highest_score(self):
         with open(f"{PROJECT_FOLDER}\\data\\highest_score.txt","r") as highest_score_text:
-            self.highest_score: int = int(highest_score_text.read())
+            self.highest_score = int(highest_score_text.read())
 
     def change_highest_score(self):
-        self.highest_score: int = self.score
+        self.highest_score = self.score
         with open(f"{PROJECT_FOLDER}\\data\\highest_score.txt","w") as highest_score_text:
             highest_score_text.write(str(self.score))
 
@@ -48,7 +48,8 @@ class Board():
         for fruit in self.fruits:
             if fruit.pos == self.snake.body[-1]:
                 if len(self.snake.body) == len(self.squares):
-                    print("as")
+                    print("you win")
+                    pygame.quit()
                 else:
                     var = True
                     while var:
@@ -59,7 +60,7 @@ class Board():
                                 var = False
                     self.score += 1
                     self.snake.eat = True
-                    self.eat_sound.play()
+                    # self.eat_sound.play()
                     if self.score > self.highest_score:
                         self.change_highest_score()
 
@@ -68,32 +69,33 @@ class Board():
             self.score = 0
             self.snake.direction = Vec(0,0)
             self.snake.body = SNAKE_START_BODY
-            self.death_sound.play()
+            # self.death_sound.play()
             for fruit in self.fruits.sprites():
                 fruit.reposition()
-
-    def display_menu(self):
-        self.ui.display()
 
     def draw_grass(self):
         for row in range(int(self.size.x)):
             for column in range(int(self.size.y)):
-                if (row + column) % 2 != 0: color: tuple(int,int,int) = DARK
-                else: color: tuple(int,int,int) = LIGHT
-                rect: pygame.Rect = pygame.Rect(row * self.square_size,column * self.square_size,self.square_size,self.square_size)
+                if (row + column) % 2 != 0: color = DARK
+                else: color = LIGHT
+                rect = pygame.Rect(row * self.square_size,column * self.square_size,self.square_size,self.square_size)
                 pygame.draw.rect(self.display_surface,color,rect)
 
     def draw(self):
         self.draw_grass()
+        self.snake.draw()
+        self.fruits.draw(self.display_surface)
 
     def update(self):
         if not self.menu:
             self.check_death()
             self.collision()
-            self.draw()
             self.snake.update()
             self.fruits.update()
             self.ui.display_text(self.font_30px,f"Highest Score: {self.highest_score}",True,UI_FONT_COLOR,)
             self.ui.display_text(self.font_30px,f"Score: {self.score}",True,UI_FONT_COLOR,(0,40))
-        else:
-            self.display_menu()
+        
+        self.draw()
+        
+        if self.menu:
+            self.ui.display()

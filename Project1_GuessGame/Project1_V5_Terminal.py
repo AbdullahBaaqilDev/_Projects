@@ -16,8 +16,6 @@ class GuessGame():
         self.to_ = to_
 
         self.random_number_range = range(self.from_,self.to_)
-        self.players = []
-        self.scores = []
         self.get_inputs()
         
     def get_inputs(self):
@@ -34,6 +32,9 @@ class GuessGame():
         self.start_game()
     
     def start_game(self):
+        self.players = []
+        self.scores = []
+        
         for index,player in enumerate(self.players):
             print(f"{NONE}\n")
             print(f"{GREEN}{player} Start.")
@@ -56,7 +57,7 @@ class GuessGame():
 
     def calculte_score(self):
         print(f"{NONE}________|Calculate the scores|_________")
-        time.sleep(1.0)
+        time.sleep(0.5)
         for index,score in enumerate(self.scores):
             print(f"{WHITE}{self.players[index]} score is :{score}")
             print(f"{NONE}-----------")
@@ -75,9 +76,9 @@ class GuessGame():
                     winners_str += winner+","
                 else:
                     winners_str += winner
-            print(f"{WHITE}Winner: {winners_str}")
-        elif len(winners) == 1:
-            print(f"{WHITE}Winner: {winners[0]}")
+            print(f"{GREEN}Winners: {winners_str}")
+        else:
+            print(f"{GREEN}The winner is {winners[0]}")
         self.ask_agine()
 
     def ask_agine(self):
@@ -89,5 +90,6 @@ class GuessGame():
             exit()
         else:
             self.start_game()
+
 if __name__ == "__main__":
     new_game = GuessGame(1,5)

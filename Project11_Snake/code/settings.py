@@ -21,19 +21,9 @@ UI_FONT_COLOR = (20,20,20)
 
 # snake settings
 SNAKE_START_BODY = [Vec(1,12),Vec(2,12),Vec(3,12)]
-SNAKE_SPEED = 150
+SNAKE_MOVE_COOLDOWN = 150
 
 # fruits
 FRUITS_NUMBER = 3
-FRUIT_TYPE = "tomato"
-FRUITS_DICT = {
-    "apple": 0,
-    "watermelon": 1,
-    "orange": 2,
-    "lemon": 3,
-    "cherry": 4,
-    "banana": 5,
-    "strawberry": 6,
-    "avocado": 7,
-    "tomato": 8,
-}
+FRUIT_TYPE = "banana"
+FRUITS_LIST = ["apple","watermelon","orange","lemon","cherry","banana","strawberry","avocado","tomato"]

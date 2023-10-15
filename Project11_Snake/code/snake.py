@@ -1,43 +1,50 @@
 import pygame
 from pygame import Vector2 as Vec
-from debug import debug
 from settings import *
 
 class Snake():
-    def __init__(self,body: list = SNAKE_START_BODY):
-        self.display_surface: pygame.Surface = pygame.display.get_surface()
+    def __init__(self,body = SNAKE_START_BODY,color = "blue"):
+        self.display_surface = pygame.display.get_surface()
+        
         self.move_sound = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\move.wav")
         self.move_sound.set_volume(0.4)
-        self.body: list(Vec,...) = body
-        self.direction: Vec = Vec(0,0)
-        self.speed: int = SNAKE_SPEED
-        self.eat: bool = False
-        self.move_cooldown: int = SNAKE_SPEED
-        self.move_time = None
-        self.can_move: bool = True
-        self.import_graphics()
 
-    def import_graphics(self):
-        self.head_images = {
-            "u": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\head_u.png"),
-            "d": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\head_d.png"),
-            "r": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\head_r.png"),
-            "l": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\head_l.png"),
+        self.body = body
+        self.direction = Vec(0,0)
+        self.speed = SNAKE_MOVE_COOLDOWN
+        self.move_cooldown = SNAKE_MOVE_COOLDOWN
+        self.move_time = None
+        self.can_move = True
+        
+        self.eat = False
+
+        self.color = color
+        self.loaded_colors = []
+        self.import_graphics(self.color)
+
+    def import_graphics(self,color):
+        if color not in self.loaded_colors:
+            self.head_images = {
+                "u": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\head_u.png"),
+                "d": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\head_d.png"),
+                "r": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\head_r.png"),
+                "l": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\head_l.png"),
+                }
+            self.body_images = {
+                "tr": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\body_tr.png"),
+                "tl": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\body_tl.png"),
+                "br": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\body_br.png"),
+                "bl": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\body_bl.png"),
+                "h": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\body_h.png"),
+                "v": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\body_v.png"),
             }
-        self.body_images = {
-            "tr": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\body_tr.png"),
-            "tl": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\body_tl.png"),
-            "br": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\body_br.png"),
-            "bl": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\body_bl.png"),
-            "h": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\body_h.png"),
-            "v": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\body_v.png"),
-        }
-        self.tail_images = {
-            "u": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\tail_u.png"),
-            "d": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\tail_d.png"),
-            "r": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\tail_r.png"),
-            "l": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\tail_l.png"),
-        }
+            self.tail_images = {
+                "u": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\tail_u.png"),
+                "d": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\tail_d.png"),
+                "r": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\tail_r.png"),
+                "l": pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\snake\\{color}\\tail_l.png"),
+            }
+            self.loaded_colors.append(color)
 
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
@@ -97,14 +104,12 @@ class Snake():
         for index,body in enumerate(self.body):
             image = pygame.Surface((SQUARE_SIZE,SQUARE_SIZE))
             image.fill((255,0,0))
-            # head
             if body == self.body[-1]:
                 body_relation =  body - self.body[-2]
                 if body_relation == Vec(1,0): image = self.head_images["r"]
                 if body_relation == Vec(-1,0): image = self.head_images["l"]
                 if body_relation == Vec(0,-1): image = self.head_images["u"]
                 if body_relation == Vec(0,1): image = self.head_images["d"]
-            # tail
             elif body == self.body[0]:
                 body_relation = body - self.body[1]
                 if body_relation == Vec(1,0): image = self.tail_images["r"]
@@ -114,12 +119,10 @@ class Snake():
             else:
                 previous_body = self.body[index - 1] - body
                 next_body = self.body[index + 1] - body
-                # body
                 if previous_body.x == next_body.x:
                     image = self.body_images["v"]
                 elif previous_body.y == next_body.y:
                     image = self.body_images["h"]
-                # cornur
                 else:
                     if previous_body.x == -1 and next_body.y == -1 or\
                        previous_body.y == -1 and next_body.x == -1:
@@ -140,4 +143,3 @@ class Snake():
         self.cooldowns()
         self.keyboard_inputs()
         if self.direction != Vec(0,0): self.move()
-        self.draw()

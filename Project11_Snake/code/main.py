@@ -20,7 +20,7 @@ class Game():
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.board.menu = True
+                        self.board.menu = not self.board.menu
 
             self.screen.fill((0,0,0))
 
