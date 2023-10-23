@@ -2,7 +2,9 @@ import pygame
 from settings import *
 
 class Piece(pygame.sprite.Sprite):
-    symbol_from_id = {1: "k", 2: "q", 3: "r", 4: "b", 5: "n", 6: "p"}
+    symbol_from_id = {
+        1: "K", 2: "Q", 3: "R", 4: "B", 5: "N", 6: "P",
+        -1: "k", -2: "q", -3: "r", -4: "b", -5: "n", -6: "p"}
 
     def __init__(self, id, image, square, groups):
         super().__init__(groups)
@@ -10,13 +12,12 @@ class Piece(pygame.sprite.Sprite):
         self.id = id
         self.moved = False
         self.square = square
-        self.image = pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
+        self.image = image
         self.rect = self.image.get_rect(topleft = square.pos * SQUARE_SIZE)
     
     def move_to(self, square):
         self.rect = self.image.get_rect(topleft = square.pos * SQUARE_SIZE)
         self.square = square
-        self.moved = True
     
     def is_selected(self, selected_piece):
         mouse_pos = pygame.mouse.get_pos()

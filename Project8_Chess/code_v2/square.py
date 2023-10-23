@@ -2,11 +2,12 @@ import pygame
 from settings import *
 
 class Square(pygame.sprite.Sprite):
-    def __init__(self, is_light, pos, groups):
+    def __init__(self, is_light, pos, board, groups):
         super().__init__(groups)
         self.screen = pygame.display.get_surface()
         self.pos = pos
         self.is_light = is_light
+        self.board = board
         self.piece = None
         self.highlighted = "normal"
 
@@ -24,6 +25,7 @@ class Square(pygame.sprite.Sprite):
         return None
     
     def highlight(self, highlight_color):
+        self.highlighted = highlight_color
         self.image.fill(SQUARE_COLORS[self.is_light][highlight_color])
     
     def draw(self):
