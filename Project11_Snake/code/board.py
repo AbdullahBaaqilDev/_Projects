@@ -17,10 +17,10 @@ class Board():
         self.square_size = SQUARE_SIZE
         self.squares = []
         self.create_squares()
+        self.snake = Snake()
         self.fruits = pygame.sprite.Group()
         self.fruit_type = FRUIT_TYPE
         self.create_fruits()
-        self.snake = Snake()
         self.score = 0
         self.get_highest_score()
         self.menu = False
@@ -41,26 +41,22 @@ class Board():
                 self.squares.append(Vec(row,column))
 
     def create_fruits(self):
+        empty_squares = [square for square in self.squares if square not in self.snake.body]
         for fruit in range(FRUITS_NUMBER):
-            Fruit(self.fruit_type,[self.fruits])
+            Fruit(self.fruit_type, empty_squares,[self.fruits])
 
     def collision(self):
         for fruit in self.fruits:
-            if fruit.pos == self.snake.body[-1]:
+            if fruit.pos in self.snake.body:
                 if len(self.snake.body) == len(self.squares):
                     print("you win")
                     pygame.quit()
                 else:
-                    var = True
-                    while var:
-                        for body in self.snake.body:
-                            if fruit.pos == body:
-                                fruit.reposition()
-                            else:
-                                var = False
+                    empty_squares = [square for square in self.squares if square not in self.snake.body]
+                    fruit.reposition(empty_squares)
                     self.score += 1
                     self.snake.eat = True
-                    # self.eat_sound.play()
+                    self.eat_sound.play()
                     if self.score > self.highest_score:
                         self.change_highest_score()
 
@@ -69,9 +65,10 @@ class Board():
             self.score = 0
             self.snake.direction = Vec(0,0)
             self.snake.body = SNAKE_START_BODY
-            # self.death_sound.play()
+            self.death_sound.play()
+            empty_squares = [square for square in self.squares if square not in self.snake.body]
             for fruit in self.fruits.sprites():
-                fruit.reposition()
+                fruit.reposition(empty_squares)
 
     def draw_grass(self):
         for row in range(int(self.size.x)):

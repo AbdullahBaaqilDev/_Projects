@@ -22,8 +22,6 @@ class Game():
                     if event.key == pygame.K_ESCAPE:
                         self.board.menu = not self.board.menu
 
-            self.screen.fill((0,0,0))
-
             self.board.update()
 
             self.clock.tick(FPS)

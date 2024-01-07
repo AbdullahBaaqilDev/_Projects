@@ -1,14 +1,20 @@
 import pygame
 from pygame import Vector2 as Vec
 from settings import *
+from random import choice
 
 class Snake():
     def __init__(self,body = SNAKE_START_BODY,color = "blue"):
         self.display_surface = pygame.display.get_surface()
         
         self.move_sound = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\move.wav")
-        self.move_sound.set_volume(0.4)
-
+        self.move_sound1 = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\move1.wav")
+        self.move_sound2 = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\move2.wav")
+        self.move_sound3 = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\move3.wav")
+        self.move_sound4 = pygame.mixer.Sound(f"{PROJECT_FOLDER}\\assets\\sounds\\move4.wav")
+        self.move_sounds = [self.move_sound,self.move_sound1,self.move_sound2,self.move_sound3,self.move_sound4]
+        for sound in self.move_sounds:
+            sound.set_volume(0.4)
         self.body = body
         self.direction = Vec(0,0)
         self.speed = SNAKE_MOVE_COOLDOWN
@@ -56,16 +62,16 @@ class Snake():
     def keyboard_inputs(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w] and self.direction.y != 1:
-            if self.direction.y == 0: self.move_sound.play()
+            if self.direction.y == 0: choice(self.move_sounds).play()
             self.direction = Vec(0,-1)
         elif keys[pygame.K_s] and self.direction.y != -1:
-            if self.direction.y == 0: self.move_sound.play()
+            if self.direction.y == 0: choice(self.move_sounds).play()
             self.direction = Vec(0,1)
         elif keys[pygame.K_d] and self.direction.x != -1:
-            if self.direction.x == 0: self.move_sound.play()
+            if self.direction.x == 0: choice(self.move_sounds).play()
             self.direction = Vec(1,0)
-        elif keys[pygame.K_a] and self.direction.x != 1:
-            if self.direction.x == 0: self.move_sound.play()
+        elif keys[pygame.K_a] and self.direction.x != 1 and self.direction != Vec(0,0):
+            if self.direction.x == 0: choice(self.move_sounds).play()
             self.direction = Vec(-1,0)
 
     def move(self):

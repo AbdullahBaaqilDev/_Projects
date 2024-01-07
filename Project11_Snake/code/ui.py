@@ -1,13 +1,16 @@
 import pygame
 
 class Button(pygame.sprite.Sprite):
-    pass
+    def __init__(self):
+        pass
 
 class Text(pygame.sprite.Sprite):
-    pass
+    def __init__(self):
+        pass
 
 class Image(pygame.sprite.Sprite):
-    pass
+    def __init__(self):
+        pass
 
 
 class UI():
