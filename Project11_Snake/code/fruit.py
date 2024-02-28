@@ -4,12 +4,14 @@ from random import choice
 from settings import *
 
 class Fruit(pygame.sprite.Sprite):
-    def __init__(self,fruit_type,empty_squares,groups):
+    loaded_fruit_types = []
+
+    def __init__(self, fruit_type, empty_squares, groups):
         super().__init__(groups)
-        self.display_surface = pygame.display.get_surface()
 
         self.original_image = pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\fruits\\{fruit_type}.png")
         self.image = pygame.transform.scale(self.original_image,(SQUARE_SIZE,SQUARE_SIZE))
+        Fruit.loaded_fruit_types.append({"type": fruit_type, "image": self.original_image})
         self.rect = self.image.get_rect(topleft = (0,0))
         self.pos = Vec(0,0)
         self.reposition(empty_squares)
@@ -17,7 +19,18 @@ class Fruit(pygame.sprite.Sprite):
         self.size_change_value = 0.003
         self.size = 0.3
         self.max_size = 0.4
-        self.min_size = 0.15
+        self.min_size = 0.2
+    
+    def change_type(self, new_type):
+        if new_type not in [fruit_type["type"] for fruit_type in Fruit.loaded_fruit_types]:
+            self.original_image = pygame.image.load(f"{PROJECT_FOLDER}\\assets\\images\\fruits\\{new_type}.png")
+            self.image = pygame.transform.scale(self.original_image,(SQUARE_SIZE,SQUARE_SIZE))
+            Fruit.loaded_fruit_types.append({"type": new_type, "image": self.original_image})
+        else:
+            for fruit_type in Fruit.loaded_fruit_types:
+                if fruit_type["type"] == new_type:
+                    self.original_image = fruit_type["image"]
+                    self.image = pygame.transform.scale(self.original_image,(SQUARE_SIZE,SQUARE_SIZE))
     
     def reposition(self, empty_squares):
         self.pos = choice(empty_squares)

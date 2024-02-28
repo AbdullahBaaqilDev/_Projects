@@ -1,0 +1,8 @@
+{
+    "wins": 0,
+    "highest_score": 0,
+    "snake_color": "blue",
+    "fruits_type": "apple",
+    "fruits_number": 1,
+    "volume": 1
+}
